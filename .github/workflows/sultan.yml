@@ -222,7 +222,9 @@ jobs:
           echo "Checking built objects:"
           find ./out -name "*.o" -path "*/net/tls/*" -o -name "tls*.o" 2>/dev/null | head -10 || echo "WARNING: No TLS objects found!"
           echo "Checking Image for TLS symbols:"
-          nm ./out/vmlinux 2>/dev/null | grep -i tls | head -5 || echo "WARNING: No TLS symbols in vmlinux!"
+          nm ./out/vmlinux 2>/dev/null | grep -iE "tls_|tls\." | head -10 || echo "WARNING: No TLS symbols in vmlinux!"
+          echo "Checking for tcp_tls registration:"
+          nm ./out/vmlinux 2>/dev/null | grep -i "tcp_ulp" || echo "WARNING: No TCP_ULP registration found!"
           echo "==================================="
       - name: Copy Images
         run: |
