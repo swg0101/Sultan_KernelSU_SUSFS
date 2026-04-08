@@ -132,7 +132,11 @@ jobs:
         if: matrix.features == 'wksu-susfs'
         run: |
           cd "$CONFIG"
-          # Networking Configuration
+          # Remove existing TLS config from ALL defconfigs to avoid merge conflicts
+          sed -i '/^# CONFIG_TLS is not set$/d' ./arch/arm64/configs/*_defconfig
+          sed -i '/^CONFIG_TLS=/d' ./arch/arm64/configs/*_defconfig
+          
+          # Append clean config to target defconfig
           echo "# Networking Configuration" >> ./arch/arm64/configs/${{ inputs.codename }}_defconfig
           echo "CONFIG_TLS=y" >> ./arch/arm64/configs/${{ inputs.codename }}_defconfig
           echo "CONFIG_IP_NF_TARGET_TTL=y" >> ./arch/arm64/configs/${{ inputs.codename }}_defconfig
@@ -192,6 +196,12 @@ jobs:
           cd "$CONFIG"
 
           make CROSS_COMPILE=$GITHUB_WORKSPACE/gcc-14.2.0-nolibc/aarch64-linux/bin/aarch64-linux- CC=$GITHUB_WORKSPACE/gcc-14.2.0-nolibc/aarch64-linux/bin/aarch64-linux-gcc -j$(nproc --all) ${{ inputs.codename }}_defconfig
+          
+          # Debug: Print final merged TLS config values
+          echo "=== Final Merged Config for TLS ==="
+          grep -E "^CONFIG_TLS=|^CONFIG_INET=|^CONFIG_CRYPTO=|^CONFIG_CRYPTO_AES=|^CONFIG_CRYPTO_GCM=|^CONFIG_STREAM_PARSER=|^CONFIG_NET_SOCK_MSG=" ./.config || echo "WARNING: Some configs not found!"
+          echo "==================================="
+          
           make CROSS_COMPILE=$GITHUB_WORKSPACE/gcc-14.2.0-nolibc/aarch64-linux/bin/aarch64-linux- CC=$GITHUB_WORKSPACE/gcc-14.2.0-nolibc/aarch64-linux/bin/aarch64-linux-gcc -j$(nproc --all)
 
       - name: Copy Images
