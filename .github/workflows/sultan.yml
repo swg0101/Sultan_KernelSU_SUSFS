@@ -204,7 +204,6 @@ jobs:
           echo "==================================="
 
       - name: Build the Kernel
-        if: false  # Set to true to enable full compilation
         run: |
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
