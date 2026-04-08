@@ -200,7 +200,7 @@ jobs:
 
           # Debug: Print final merged TLS config values
           echo "=== Final Merged Config for TLS ==="
-          grep -E "^CONFIG_TLS=|^CONFIG_INET=|^CONFIG_CRYPTO=|^CONFIG_CRYPTO_AES=|^CONFIG_CRYPTO_GCM=|^CONFIG_STREAM_PARSER=|^CONFIG_NET_SOCK_MSG=" .config || echo "WARNING: Some configs not found!"
+          grep -E "^CONFIG_TLS=|^CONFIG_INET=|^CONFIG_CRYPTO=|^CONFIG_CRYPTO_AES=|^CONFIG_CRYPTO_GCM=|^CONFIG_STREAM_PARSER=|^CONFIG_NET_SOCK_MSG=" ./out/.config || echo "WARNING: Some configs not found!"
           echo "==================================="
           echo "Config generation complete. Skipping full build for now."
           exit 1
