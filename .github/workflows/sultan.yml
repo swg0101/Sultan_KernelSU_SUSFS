@@ -208,7 +208,22 @@ jobs:
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
 
+          # Debug: Check config before build starts
+          echo "=== Pre-build Config Check ==="
+          grep -E "^CONFIG_TLS=" ./out/.config || echo "WARNING: CONFIG_TLS not found!"
+          echo "==============================="
+
           make CROSS_COMPILE=$GITHUB_WORKSPACE/gcc-14.2.0-nolibc/aarch64-linux/bin/aarch64-linux- CC=$GITHUB_WORKSPACE/gcc-14.2.0-nolibc/aarch64-linux/bin/aarch64-linux-gcc -j$(nproc --all)
+
+          # Debug: Verify TLS was compiled
+          echo "=== Post-build TLS Verification ==="
+          echo "Checking .config:"
+          grep -E "^CONFIG_TLS=" ./out/.config || echo "WARNING: CONFIG_TLS not in .config!"
+          echo "Checking built objects:"
+          find ./out -name "*.o" -path "*/net/tls/*" -o -name "tls*.o" 2>/dev/null | head -10 || echo "WARNING: No TLS objects found!"
+          echo "Checking Image for TLS symbols:"
+          nm ./out/vmlinux 2>/dev/null | grep -i tls | head -5 || echo "WARNING: No TLS symbols in vmlinux!"
+          echo "==================================="
       - name: Copy Images
         run: |
           echo "Changing to configuration directory: $CONFIG..."
