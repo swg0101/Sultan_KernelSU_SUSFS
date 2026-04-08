@@ -138,7 +138,7 @@ jobs:
 
           # Append clean config to target defconfig
           echo "# Networking Configuration" >> ./arch/arm64/configs/${{ inputs.codename }}_defconfig
-          echo "CONFIG_TLS=y" >> ./arch/arm64/configs/${{ inputs.codename }}_defconfig
+          echo "CONFIG_TLS=m" >> ./arch/arm64/configs/${{ inputs.codename }}_defconfig
           echo "CONFIG_IP_NF_TARGET_TTL=y" >> ./arch/arm64/configs/${{ inputs.codename }}_defconfig
           echo "CONFIG_IP6_NF_TARGET_HL=y" >> ./arch/arm64/configs/${{ inputs.codename }}_defconfig
           echo "CONFIG_IP6_NF_MATCH_HL=y" >> ./arch/arm64/configs/${{ inputs.codename }}_defconfig
@@ -215,6 +215,12 @@ jobs:
 
           make CROSS_COMPILE=$GITHUB_WORKSPACE/gcc-14.2.0-nolibc/aarch64-linux/bin/aarch64-linux- CC=$GITHUB_WORKSPACE/gcc-14.2.0-nolibc/aarch64-linux/bin/aarch64-linux-gcc -j$(nproc --all)
 
+          # Build TLS module
+          echo "Building TLS module..."
+          make CROSS_COMPILE=$GITHUB_WORKSPACE/gcc-14.2.0-nolibc/aarch64-linux/bin/aarch64-linux- CC=$GITHUB_WORKSPACE/gcc-14.2.0-nolibc/aarch64-linux/bin/aarch64-linux-gcc -j$(nproc --all) modules
+          echo "Installing TLS module..."
+          make CROSS_COMPILE=$GITHUB_WORKSPACE/gcc-14.2.0-nolibc/aarch64-linux/bin/aarch64-linux- CC=$GITHUB_WORKSPACE/gcc-14.2.0-nolibc/aarch64-linux/bin/aarch64-linux-gcc INSTALL_MOD_PATH=$GITHUB_WORKSPACE/modules modules_install
+
           # Debug: Verify TLS was compiled
           echo "=== Post-build TLS Verification ==="
           echo "Checking .config:"
@@ -243,6 +249,14 @@ jobs:
           elif [ "${{ inputs.codename }}" == "zumapro" ]; then
             cat ./out/google-devices/zumapro/dts/*.dtb > ../AnyKernel3/dtb
           fi
+
+      - name: Copy Kernel Modules to AnyKernel3
+        if: matrix.features == 'wksu-susfs'
+        run: |
+          echo "Copying kernel modules to AnyKernel3..."
+          mkdir -p ../AnyKernel3/lib/modules
+          cp -r ../modules/lib/modules/* ../AnyKernel3/lib/modules/
+          echo "Kernel modules copied successfully"
 
       - name: Create ZIP Files for Different Formats
         run: |
