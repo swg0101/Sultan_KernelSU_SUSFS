@@ -204,13 +204,17 @@ jobs:
           echo "Changing to configuration directory: $CONFIG..."
           cd "$CONFIG"
 
+          # Debug: Check defconfig before generating
+          echo "=== Defconfig Check ==="
+          grep -E "^CONFIG_MODULES=|^# CONFIG_MODULES" ./arch/arm64/configs/${{ inputs.codename }}_defconfig || echo "CONFIG_MODULES not in defconfig!"
+          echo "========================"
+
           echo "Generating defconfig..."
           make CROSS_COMPILE=$GITHUB_WORKSPACE/gcc-14.2.0-nolibc/aarch64-linux/bin/aarch64-linux- CC=$GITHUB_WORKSPACE/gcc-14.2.0-nolibc/aarch64-linux/bin/aarch64-linux-gcc ${{ inputs.codename }}_defconfig
 
-          # Debug: Print final merged TLS config values
-          echo "=== Final Merged Config for TLS ==="
-          grep -E "^CONFIG_TLS=|^CONFIG_INET=|^CONFIG_CRYPTO=|^CONFIG_CRYPTO_AES=|^CONFIG_CRYPTO_GCM=|^CONFIG_STREAM_PARSER=|^CONFIG_NET_SOCK_MSG=" ./out/.config || echo "WARNING: Some configs not found!"
-          echo "==================================="
+          echo "=== Final Merged Config ==="
+          grep -E "^CONFIG_MODULES=|^CONFIG_TLS=|^CONFIG_MODULE_UNLOAD=" ./out/.config || echo "WARNING: Some configs not found!"
+          echo "==========================="
 
       - name: Build the Kernel
         run: |
