@@ -132,6 +132,12 @@ jobs:
         if: matrix.features == 'wksu-susfs'
         run: |
           cd "$CONFIG"
+          # Remove existing module disable directives from ALL defconfigs
+          sed -i '/^# CONFIG_MODULES is not set$/d' ./arch/arm64/configs/*_defconfig
+          sed -i '/^CONFIG_MODULES=/d' ./arch/arm64/configs/*_defconfig
+          sed -i '/^# CONFIG_MODULE_UNLOAD is not set$/d' ./arch/arm64/configs/*_defconfig
+          sed -i '/^CONFIG_MODULE_UNLOAD=/d' ./arch/arm64/configs/*_defconfig
+          
           # Enable module support for TLS=m
           echo "# Module Support" >> ./arch/arm64/configs/${{ inputs.codename }}_defconfig
           echo "CONFIG_MODULES=y" >> ./arch/arm64/configs/${{ inputs.codename }}_defconfig
