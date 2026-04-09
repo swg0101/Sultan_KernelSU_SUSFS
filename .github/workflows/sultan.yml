@@ -128,6 +128,15 @@ jobs:
           echo "CONFIG_TMPFS_XATTR=y" >> ./arch/arm64/configs/${{ inputs.codename }}_defconfig
           echo "CONFIG_TMPFS_POSIX_ACL=y" >> ./arch/arm64/configs/${{ inputs.codename }}_defconfig
 
+      - name: Configure Module Support
+        if: matrix.features == 'wksu-susfs'
+        run: |
+          cd "$CONFIG"
+          # Enable module support for TLS=m
+          echo "# Module Support" >> ./arch/arm64/configs/${{ inputs.codename }}_defconfig
+          echo "CONFIG_MODULES=y" >> ./arch/arm64/configs/${{ inputs.codename }}_defconfig
+          echo "CONFIG_MODULE_UNLOAD=y" >> ./arch/arm64/configs/${{ inputs.codename }}_defconfig
+
       - name: Configure Networking
         if: matrix.features == 'wksu-susfs'
         run: |
